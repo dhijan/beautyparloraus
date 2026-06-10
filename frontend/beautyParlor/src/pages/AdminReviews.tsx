@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import type { AdminReview, AdminReviewForm } from "../types/adminReview";
 import { getAdminAuthHeaders } from "../api/adminAuthApi";
@@ -19,10 +19,6 @@ const emptyForm: AdminReviewForm = {
 };
 
 function AdminReviews() {
-  const [adminKey, setAdminKey] = useState(() => {
-    return localStorage.getItem("bbh_admin_key") || "";
-  });
-
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [form, setForm] = useState<AdminReviewForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -49,14 +45,17 @@ function AdminReviews() {
         throw new Error(data.error || "Could not load reviews");
       }
 
-      localStorage.setItem("bbh_admin_key", adminKey);
       setReviews(data);
     } catch {
-      setError("Could not load reviews. Check admin key or backend.");
+      setError("Could not load reviews. Check your login or backend.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadReviews();
+  }, []);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -196,29 +195,12 @@ function AdminReviews() {
   return (
     <section>
       <div className="admin-login-card">
-        <h2>Admin Access</h2>
-        <p>Enter your admin key first, then load client reviews.</p>
+        <h2>Review Dashboard</h2>
+        <p>Client reviews are available after admin login.</p>
 
         <div className="admin-login-row">
-          <input
-            type="password"
-            placeholder="Admin key"
-            value={adminKey}
-            onChange={(event) => setAdminKey(event.target.value)}
-          />
-
-          <button onClick={loadReviews} disabled={loading || !adminKey}>
-            {loading ? "Loading..." : "Load Reviews"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.removeItem("bbh_admin_key");
-              setAdminKey("");
-            }}
-          >
-            Clear Key
+          <button onClick={loadReviews} disabled={loading}>
+            {loading ? "Loading..." : "Refresh Reviews"}
           </button>
         </div>
 
@@ -313,7 +295,7 @@ function AdminReviews() {
           </label>
 
           <div className="admin-product-actions">
-            <button type="submit" disabled={!adminKey}>
+            <button type="submit">
               {editingId ? "Update Review" : "Add Review"}
             </button>
 

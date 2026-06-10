@@ -11,6 +11,7 @@ function Contact() {
 
   const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
 
     try {
       setSending(true);
@@ -18,7 +19,7 @@ function Contact() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      const formData = new FormData(event.currentTarget);
+      const formData = new FormData(form);
 
       const payload = {
         fullName: String(formData.get("c-name") || ""),
@@ -45,7 +46,7 @@ function Contact() {
           ? "Message saved. Email delivery is not configured, so please check the admin records."
           : "Message sent! We'll be in touch within 24 hours."
       );
-      event.currentTarget.reset();
+      form.reset();
     } catch (error) {
       setErrorMessage(
         error instanceof Error

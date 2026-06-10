@@ -2297,6 +2297,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 
 .form-success {
+  display: block;
   margin-top: 14px;
   padding: 14px 16px;
   border-radius: 14px;

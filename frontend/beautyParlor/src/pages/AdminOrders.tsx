@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AdminOrder } from "../types/adminOrder";
 import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
@@ -14,9 +14,6 @@ const STATUS_OPTIONS = [
 ];
 
 function AdminOrders() {
-  const [adminKey, setAdminKey] = useState(() => {
-    return localStorage.getItem("bbh_admin_key") || "";
-  });
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -42,14 +39,17 @@ function AdminOrders() {
         throw new Error(data.error || "Could not load orders");
       }
 
-      localStorage.setItem("bbh_admin_key", adminKey);
       setOrders(data);
     } catch {
-      setError("Could not load orders. Check backend or admin key.");
+      setError("Could not load orders. Check your login or backend.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   const updateOrderStatus = async (orderId: number, status: string) => {
     try {
@@ -152,29 +152,12 @@ function AdminOrders() {
         <div className="admin-login-card">
           <div>
             <h2>Order Dashboard</h2>
-            <p>Enter your admin key to load customer orders.</p>
+            <p>Customer orders are available after admin login.</p>
           </div>
 
           <div className="admin-login-row">
-            <input
-              type="password"
-              placeholder="Admin key"
-              value={adminKey}
-              onChange={(event) => setAdminKey(event.target.value)}
-            />
-
-            <button onClick={loadOrders} disabled={loading || !adminKey}>
-              {loading ? "Loading..." : "Load Orders"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem("bbh_admin_key");
-                setAdminKey("");
-              }}
-            >
-              Clear Key
+            <button onClick={loadOrders} disabled={loading}>
+              {loading ? "Loading..." : "Refresh Orders"}
             </button>
           </div>
 

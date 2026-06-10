@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AdminService, AdminServiceForm } from "../types/adminServices";
 import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
@@ -18,10 +18,6 @@ const emptyForm: AdminServiceForm = {
 };
 
 function AdminServices() {
-  const [adminKey, setAdminKey] = useState(() => {
-    return localStorage.getItem("bbh_admin_key") || "";
-  });
-
   const [services, setServices] = useState<AdminService[]>([]);
   const [form, setForm] = useState<AdminServiceForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -48,14 +44,17 @@ function AdminServices() {
         throw new Error(data.error || "Could not load services");
       }
 
-      localStorage.setItem("bbh_admin_key", adminKey);
       setServices(data);
     } catch {
-      setError("Could not load services. Check admin key or backend.");
+      setError("Could not load services. Check your login or backend.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadServices();
+  }, []);
 
   const handleChange = (
     event: React.ChangeEvent<
@@ -191,29 +190,12 @@ function AdminServices() {
 
       <section className="admin-section">
         <div className="admin-login-card">
-          <h2>Admin Access</h2>
-          <p>Enter your admin key first, then load services.</p>
+          <h2>Service Dashboard</h2>
+          <p>Services are available after admin login.</p>
 
           <div className="admin-login-row">
-            <input
-              type="password"
-              placeholder="Admin key"
-              value={adminKey}
-              onChange={(event) => setAdminKey(event.target.value)}
-            />
-
-            <button onClick={loadServices} disabled={loading || !adminKey}>
-              {loading ? "Loading..." : "Load Services"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem("bbh_admin_key");
-                setAdminKey("");
-              }}
-            >
-              Clear Key
+            <button onClick={loadServices} disabled={loading}>
+              {loading ? "Loading..." : "Refresh Services"}
             </button>
           </div>
 
@@ -304,7 +286,7 @@ function AdminServices() {
             </label>
 
             <div className="admin-product-actions">
-              <button type="submit" disabled={!adminKey}>
+              <button type="submit">
                 {editingId ? "Update Service" : "Add Service"}
               </button>
 

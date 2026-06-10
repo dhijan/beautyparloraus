@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AdminProduct, AdminProductForm } from "../types/adminProducts";
 import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
@@ -18,9 +18,6 @@ const emptyForm: AdminProductForm = {
 const categories = ["brow", "lash", "skin", "wax", "tattoo", "general"];
 
 function AdminProducts() {
-  const [adminKey, setAdminKey] = useState(() => {
-    return localStorage.getItem("bbh_admin_key") || "";
-  });
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [form, setForm] = useState<AdminProductForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -44,14 +41,17 @@ function AdminProducts() {
       if (!response.ok) {
         throw new Error(data.error || "Could not load products");
       }
-      localStorage.setItem("bbh_admin_key", adminKey);
       setProducts(data);
     } catch {
-      setError("Could not load products. Check admin key or backend.");
+      setError("Could not load products. Check your login or backend.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
 
   const handleChange = (
     event: React.ChangeEvent<
@@ -169,28 +169,12 @@ function AdminProducts() {
 
       <section className="admin-section">
         <div className="admin-login-card">
-          <h2>Admin Access</h2>
-          <p>Enter your admin key first, then load products.</p>
+          <h2>Product Dashboard</h2>
+          <p>Products are available after admin login.</p>
 
           <div className="admin-login-row">
-            <input
-              type="password"
-              placeholder="Admin key"
-              value={adminKey}
-              onChange={(event) => setAdminKey(event.target.value)}
-            />
-
-            <button onClick={loadProducts} disabled={loading || !adminKey}>
-              {loading ? "Loading..." : "Load Products"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem("bbh_admin_key");
-                setAdminKey("");
-              }}
-            >
-              Clear Key
+            <button onClick={loadProducts} disabled={loading}>
+              {loading ? "Loading..." : "Refresh Products"}
             </button>
           </div>
 
@@ -256,7 +240,7 @@ function AdminProducts() {
             />
 
             <div className="admin-product-actions">
-              <button type="submit" disabled={!adminKey}>
+              <button type="submit">
                 {editingId ? "Update Product" : "Add Product"}
               </button>
 
