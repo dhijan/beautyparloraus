@@ -1,254 +1,183 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const testimonials = [
-  {
-    text: "I've been coming to Brow Beauty Hub for over a year and the results are always flawless. My brow lamination lasts so long and the team really takes the time to shape them perfectly for my face. Absolutely love it!",
-    avatar: "S",
-    name: "Sophia Anderson",
-    service: "Brow Lamination Client — Roselands",
-  },
-  {
-    text: "I had my lash extensions done at the Hurstville branch and I am obsessed! They looked so natural yet full — exactly what I asked for. The therapist was gentle, professional, and explained every step.",
-    avatar: "E",
-    name: "Emily Chen",
-    service: "Lash Extensions Client — Hurstville",
-  },
-  {
-    text: "The deep cleanse facial at Brow Beauty Hub is incredible. My skin was glowing for weeks. The salon is spotlessly clean and the staff are so knowledgeable.",
-    avatar: "R",
-    name: "Rachel Patel",
-    service: "Facial Client — Hornsby",
-  },
-];
+import { milestones, principles, team } from "../data/bbhData";
 
 function About() {
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <main>
-      <section className="page-banner">
-        <div className="page-banner-overlay"></div>
+    <main className="bbh-page">
+      <Link to="/" className="bbh-back">
+        ← Back home
+      </Link>
 
-        <div className="page-banner-content">
-          <span className="section-label light">Who We Are</span>
-          <h1>
-            About <em>Brow Beauty Hub</em>
-          </h1>
+      <div className="bbh-page-head" style={{ marginTop: 20 }}>
+        <h1 className="bbh-display bbh-h1 bbh-fade-up">
+          Our <em>story</em>
+        </h1>
 
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb justify-content-center">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                About Us
-              </li>
-            </ol>
-          </nav>
+        <p
+          className="bbh-lede bbh-fade-up"
+          style={{ maxWidth: 400, animationDelay: "0.12s" }}
+        >
+          One chair, one artist, one guest at a time — since 2018. Four studios
+          later, that has not changed.
+        </p>
+      </div>
+
+      <div className="bbh-story" data-reveal="0">
+        <img
+          src="https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1400&q=80"
+          alt="Brow Beauty Hub studio floor"
+          loading="lazy"
+        />
+
+        <span className="shade"></span>
+
+        <div className="cap">
+          <p>
+            “We would rather run late than rush a shape. That is the whole
+            philosophy.”
+          </p>
+          <span
+            className="bbh-meta"
+            style={{ color: "rgba(242,239,233,.6)", whiteSpace: "nowrap" }}
+          >
+            Founder · Roselands
+          </span>
         </div>
-      </section>
+      </div>
 
-      <section className="about" id="about">
-        <div className="container">
-          <div className="about-grid">
-            <div className="about-images">
-              <div className="about-img-main">
-                <img
-                  alt="Salon interior"
-                  loading="lazy"
-                  src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80"
-                />
-              </div>
+      <div className="bbh-split" style={{ marginTop: 96 }}>
+        <div className="bbh-sticky">
+          <div className="bbh-eyebrow" data-reveal="0">
+            How we got here
+          </div>
 
-              <div className="about-img-accent">
-                <img
-                  alt="Stylist at work"
-                  loading="lazy"
-                  src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80"
-                />
+          <h2 className="bbh-display bbh-h2" data-reveal="1" style={{ marginTop: 18 }}>
+            Eight years,
+            <br />
+            <em>four studios</em>
+          </h2>
 
-                <div className="about-badge">
-                  <span className="badge-number">8+</span>
-                  <span className="badge-text">Years of Excellence</span>
-                </div>
+          <p
+            className="bbh-lede"
+            data-reveal="2"
+            style={{ marginTop: 22, maxWidth: 380 }}
+          >
+            We grew by referral, not advertising. Every new studio opened
+            because the last one had a waitlist we could not honour.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {milestones.map((milestone, index) => (
+            <div
+              key={milestone.year}
+              className="bbh-milestone bbh-glass bbh-lift"
+              data-reveal={index}
+            >
+              <span className="year">{milestone.year}</span>
+              <div>
+                <h3>{milestone.title}</h3>
+                <p>{milestone.copy}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </div>
 
-            <div className="about-content">
-              <span className="section-label">Who We Are</span>
+      <section style={{ marginTop: 110 }}>
+        <div className="bbh-head">
+          <h2 className="bbh-display bbh-h2" data-reveal="0">
+            The <em>people</em>
+          </h2>
 
-              <h2 className="section-title">
-                Dedicated to Beauty, <em>Driven by Precision</em>
-              </h2>
+          <p data-reveal="1" style={{ maxWidth: 300 }}>
+            Ten specialists. One artist stays with you from consult to
+            aftercare.
+          </p>
+        </div>
 
-              <p className="about-lead">
-                At Brow Beauty Hub, we are a dedicated team of experienced
-                beauty professionals committed to delivering high-quality,
-                results-driven treatments.
-              </p>
-
-              <p className="about-body">
-                Our focus is on enhancing natural beauty through precision
-                techniques, premium products, and personalised care in a clean
-                and welcoming environment.
-              </p>
-
-              <div className="about-mission">
-                <div className="mission-icon">
-                  <i className="fa-solid fa-bullseye"></i>
-                </div>
-
-                <div>
-                  <h4>Our Mission</h4>
-                  <p>
-                    To enhance every client's natural beauty through precision
-                    techniques, premium products, and a deeply personalised
-                    experience — delivered consistently across all three of our
-                    Sydney locations.
-                  </p>
-                </div>
+        <div className="bbh-grid-4">
+          {team.map((person, index) => (
+            <article key={person.name} className="bbh-person" data-reveal={index}>
+              <div className="bbh-thumb">
+                <img src={person.image} alt={person.name} loading="lazy" />
+                <span className="tag">{person.studio}</span>
               </div>
 
-              <div className="about-values">
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Precision Techniques
-                </div>
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Premium Products
-                </div>
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Clean & Hygienic
-                </div>
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Personalised Care
-                </div>
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Results-Driven
-                </div>
-                <div className="value-tag">
-                  <i className="fa-solid fa-check"></i> Consistent Standards
-                </div>
-              </div>
-
-              <Link className="btn btn-primary" to="/contact#booking">
-                Book a Consultation
-              </Link>
-            </div>
-          </div>
+              <h3>{person.name}</h3>
+              <span className="bbh-meta" style={{ marginTop: 6 }}>
+                {person.role}
+              </span>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="stats-strip">
-        <div className="stats-container">
-          <div className="stat-item">
-            <span className="stat-number">5000</span>
-            <span className="stat-plus">+</span>
-            <p>Happy Clients</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">3</span>
-            <span className="stat-plus"></span>
-            <p>Locations in Sydney</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">10</span>
-            <span className="stat-plus">+</span>
-            <p>Specialist Therapists</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">20</span>
-            <span className="stat-plus">+</span>
-            <p>Beauty Treatments</p>
-          </div>
+      <section style={{ marginTop: 110 }}>
+        <div className="bbh-eyebrow" data-reveal="0">
+          What we hold to
         </div>
-      </section>
 
-      <section className="testimonials" id="testimonials">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-label">Client Love</span>
-
-            <h2 className="section-title">
-              What Our Clients <em>Are Saying</em>
-            </h2>
-          </div>
-
-          <div className="testimonials-slider">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={testimonial.name}
-                className={`testimonial-card ${
-                  activeSlide === index ? "active" : ""
-                }`}
+        <div className="bbh-grid-3" style={{ marginTop: 30 }}>
+          {principles.map((principle, index) => (
+            <div
+              key={principle.no}
+              className="bbh-principle bbh-glass bbh-lift"
+              data-reveal={index % 3}
+            >
+              <span
+                className="bbh-meta"
+                style={{ color: "var(--bbh-brass-deep)" }}
               >
-                <div className="stars">
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                </div>
-
-                <p className="testimonial-text">"{testimonial.text}"</p>
-
-                <div className="testimonial-author">
-                  <div className="author-avatar">{testimonial.avatar}</div>
-
-                  <div>
-                    <strong>{testimonial.name}</strong>
-                    <span>{testimonial.service}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="slider-controls">
-            <button
-              className="slider-btn"
-              onClick={() =>
-                setActiveSlide(
-                  (activeSlide - 1 + testimonials.length) %
-                    testimonials.length
-                )
-              }
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
-
-            <div className="slider-dots">
-              {testimonials.map((testimonial, index) => (
-                <button
-                  key={testimonial.name}
-                  className={`dot ${activeSlide === index ? "active" : ""}`}
-                  onClick={() => setActiveSlide(index)}
-                ></button>
-              ))}
+                {principle.no}
+              </span>
+              <h3>{principle.title}</h3>
+              <p>{principle.copy}</p>
             </div>
-
-            <button
-              className="slider-btn"
-              onClick={() =>
-                setActiveSlide((activeSlide + 1) % testimonials.length)
-              }
-            >
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
+          ))}
         </div>
       </section>
+
+      <div
+        className="bbh-dark bbh-cta-split"
+        data-reveal="0"
+        style={{ marginTop: 96 }}
+      >
+        <div className="bbh-dark-glow" data-parallax="-0.05"></div>
+
+        <div>
+          <h2
+            className="bbh-display"
+            style={{ fontSize: "clamp(32px,4vw,56px)" }}
+          >
+            Come and see the{" "}
+            <em style={{ color: "var(--bbh-brass)" }}>difference</em>
+          </h2>
+
+          <p
+            style={{
+              margin: "16px 0 0",
+              maxWidth: 460,
+              fontSize: 15,
+              lineHeight: 1.62,
+              color: "rgba(242,239,233,.62)",
+            }}
+          >
+            Book with any of our four Sydney studios — or drop in and we will
+            find you a chair if we can.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <Link className="bbh-btn cream" to="/book">
+            Book now
+          </Link>
+
+          <Link className="bbh-btn outline-light" to="/locations">
+            Locations
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

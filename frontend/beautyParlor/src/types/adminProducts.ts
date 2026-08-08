@@ -14,6 +14,7 @@ export interface AdminProduct {
   tag: string | null;
   desc: string;
   imageUrl?: string | null;
+  paymentLink?: string | null;
   isActive: boolean;
 }
 
@@ -24,5 +25,6 @@ export interface AdminProductForm {
   tag: string;
   desc: string;
   imageUrl: string;
+  paymentLink: string;
   isActive: boolean;
 }

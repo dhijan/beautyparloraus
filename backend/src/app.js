@@ -6,13 +6,14 @@ require("dotenv").config();
 
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
-const serviceRoutes = require("./routes/serviceRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const adminRoutes = require("./routes/adminRoutes");
 const homepageRoutes = require("./routes/homepageRoutes");
-const blogRoutes = require("./routes/blogRoutes");
-const contactRoutes = require("./routes/contactRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+const studioRoutes = require("./routes/studioRoutes");
+
+const { stripeWebhook } = require("./controllers/orderController");
 
 const app = express();
 
@@ -20,9 +21,24 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 
+// Before express.json() and the rate limiter on purpose: Stripe signs the raw
+// request bytes, and its delivery retries must not be throttled.
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
+
+// FRONTEND_URL takes a comma-separated list so the built app and a local Vite
+// dev server can both talk to the same API without editing this file.
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -46,12 +62,11 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/admin", adminRoutes);
+app.use("/api/booking", bookingRoutes);
+app.use("/api/studio", studioRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/services", serviceRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/homepage", homepageRoutes);
-app.use("/api/blogs", blogRoutes);
-app.use("/api/contact", contactRoutes);
 app.use("/api", orderRoutes);
 
 app.use(notFound);

@@ -10,6 +10,7 @@ CREATE TABLE products (
   tag VARCHAR(80),
   description TEXT NOT NULL,
   image_url TEXT,
+  payment_link TEXT,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -17,6 +18,7 @@ CREATE TABLE products (
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   order_number VARCHAR(50) UNIQUE NOT NULL,
+  stripe_session_id TEXT UNIQUE,
 
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
@@ -41,21 +43,6 @@ CREATE TABLE order_items (
   product_name VARCHAR(150) NOT NULL,
   quantity INTEGER NOT NULL,
   price NUMERIC(10, 2) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS services (
-  id SERIAL PRIMARY KEY,
-  slug VARCHAR(150) UNIQUE NOT NULL,
-  title VARCHAR(150) NOT NULL,
-  label VARCHAR(100),
-  service_number VARCHAR(20),
-  short_description TEXT NOT NULL,
-  image_url TEXT,
-  paragraphs JSONB DEFAULT '[]',
-  includes JSONB DEFAULT '[]',
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS client_reviews (
@@ -100,36 +87,5 @@ CREATE TABLE IF NOT EXISTS homepage_stats (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS blogs (
-  id SERIAL PRIMARY KEY,
-
-  slug VARCHAR(200) UNIQUE NOT NULL,
-  title VARCHAR(250) NOT NULL,
-  category VARCHAR(120),
-  excerpt TEXT NOT NULL,
-  content TEXT NOT NULL,
-  image_url TEXT,
-  author VARCHAR(150),
-  read_time VARCHAR(50),
-
-  is_featured BOOLEAN DEFAULT FALSE,
-  is_active BOOLEAN DEFAULT TRUE,
-  display_order INTEGER DEFAULT 0,
-
-  published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS contact_messages (
-  id SERIAL PRIMARY KEY,
-
-  full_name VARCHAR(150) NOT NULL,
-  email VARCHAR(150) NOT NULL,
-  subject VARCHAR(200) NOT NULL,
-  message TEXT NOT NULL,
-
-  status VARCHAR(50) DEFAULT 'new',
-
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Studio operations tables (idempotent, shared with migrations.sql).
+\ir salon.sql

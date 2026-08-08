@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { getOrders, notifyOrder, setOrderStatus } from "../api/adminShopApi";
 import type { AdminOrder } from "../types/adminOrder";
-import { getAdminAuthHeaders } from "../api/adminAuthApi";
+import { dLabel, money } from "../lib/booking";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-
-const STATUS_OPTIONS = [
+const STATUSES = [
   "pending",
   "confirmed",
   "processing",
@@ -13,274 +12,253 @@ const STATUS_OPTIONS = [
   "cancelled",
 ];
 
+// Which states still need someone to act — drives the "needs action" filter
+// and the top counter.
+const OPEN = ["pending", "confirmed", "processing"];
+
 function AdminOrders() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [tab, setTab] = useState("open");
+  const [query, setQuery] = useState("");
+  const [openId, setOpenId] = useState<number | null>(null);
+  const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifyingId, setNotifyingId] = useState<number | null>(null);
-  const loadOrders = async () => {
+  async function load() {
     try {
-      setLoading(true);
+      setOrders(await getOrders());
       setError("");
-
-      const response = await fetch(`${API_BASE_URL}/orders/admin`, {
-        headers: {
-           ...getAdminAuthHeaders(),
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not load orders");
-      }
-
-      setOrders(data);
-    } catch {
-      setError("Could not load orders. Check your login or backend.");
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    loadOrders();
+    load();
   }, []);
 
-  const updateOrderStatus = async (orderId: number, status: string) => {
+  const rows = useMemo(() => {
+    const needle = query.toLowerCase().trim();
+
+    return orders.filter((o) => {
+      const matchesTab =
+        tab === "all" ? true : tab === "open" ? OPEN.includes(o.status) : o.status === tab;
+
+      const haystack = [
+        o.orderNumber,
+        o.customer.firstName,
+        o.customer.lastName,
+        o.customer.email,
+        o.customer.phone || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return matchesTab && haystack.includes(needle);
+    });
+  }, [orders, tab, query]);
+
+  const openCount = orders.filter((o) => OPEN.includes(o.status)).length;
+  const revenue = orders
+    .filter((o) => o.status !== "cancelled")
+    .reduce((sum, o) => sum + o.total, 0);
+
+  async function changeStatus(id: number, status: string) {
+    setBusyId(id);
+
     try {
-      setUpdatingId(orderId);
+      await setOrderStatus(id, status);
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+      setNotice("");
       setError("");
-
-      const response = await fetch(
-        `${API_BASE_URL}/orders/admin/${orderId}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-             ...getAdminAuthHeaders(),
-          },
-          body: JSON.stringify({ status }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not update order");
-      }
-
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status } : order
-        )
-      );
-    } catch {
-      setError("Could not update order status.");
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
-      setUpdatingId(null);
+      setBusyId(null);
     }
-  };
+  }
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
+  async function notify(order: AdminOrder) {
+    setBusyId(order.id);
 
-    const firstName = order.customer.firstName || "";
-    const lastName = order.customer.lastName || "";
-    const fullName = `${firstName} ${lastName}`;
-
-    const searchText = [
-      order.orderNumber,
-      firstName,
-      lastName,
-      fullName,
-      order.customer.email,
-      order.customer.phone || "",
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    const matchesSearch = searchText.includes(searchQuery.toLowerCase().trim());
-
-    return matchesStatus && matchesSearch;
-  });
-
-  const notifyUser = async (orderId: number) => {
     try {
-      setNotifyingId(orderId);
+      await notifyOrder(order.id);
+      setNotice(`${order.customer.email} emailed about ${order.orderNumber}.`);
       setError("");
-
-      const response = await fetch(
-        `${API_BASE_URL}/orders/admin/${orderId}/notify`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-             ...getAdminAuthHeaders(),
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not notify user");
-      }
-
-      alert("User notified successfully.");
-    } catch {
-      setError("Could not notify user. Check email setup.");
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
-      setNotifyingId(null);
+      setBusyId(null);
     }
-  };
+  }
 
   return (
-    <main className="admin-page">
-      <section className="admin-hero">
-        <p className="admin-eyebrow">Brow Beauty Hub</p>
-        <h1>Admin Orders</h1>
-        <p>View and manage product orders submitted from the shop checkout.</p>
-      </section>
-
-      <section className="admin-section">
-        <div className="admin-login-card">
-          <div>
-            <h2>Order Dashboard</h2>
-            <p>Customer orders are available after admin login.</p>
-          </div>
-
-          <div className="admin-login-row">
-            <button onClick={loadOrders} disabled={loading}>
-              {loading ? "Loading..." : "Refresh Orders"}
-            </button>
-          </div>
-
-          <div className="admin-filter-row">
-            <input
-              type="text"
-              placeholder="Search by order/customer/email..."
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-            />
-
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-
-          {error && <p className="admin-error">{error}</p>}
+    <div className="studio-page">
+      <header className="studio-head">
+        <div>
+          <div className="studio-eyebrow">Studio console</div>
+          <h1>Shop orders</h1>
         </div>
 
-        <div className="admin-orders-grid">
-          {filteredOrders.length === 0 ? (
-            <div className="admin-empty">
-              <i className="fa-solid fa-box-open"></i>
-              <p>No matching orders found.</p>
+        <span className="studio-muted">
+          Orders arrive from Stripe checkout. Open one to see the items and the
+          delivery address.
+        </span>
+      </header>
+
+      {error && <p className="studio-error">{error}</p>}
+
+      <div className="studio-kpis">
+        {[
+          { label: "Orders", value: String(orders.length), sub: "All time" },
+          {
+            label: "Needs action",
+            value: String(openCount),
+            sub: "Pending, confirmed or processing",
+            warn: openCount > 0,
+          },
+          {
+            label: "Order value",
+            value: money(revenue),
+            sub: "Excludes cancelled",
+          },
+        ].map((k) => (
+          <div className="studio-kpi" key={k.label}>
+            <div className="studio-eyebrow">{k.label}</div>
+            <div className={`studio-kpi-value ${k.warn ? "warn" : ""}`}>
+              <span>{k.value}</span>
             </div>
-          ) : (
-            filteredOrders.map((order) => (
-              <article className="admin-order-card" key={order.id}>
-                <div className="admin-order-top">
-                  <div>
-                    <h3>{order.orderNumber}</h3>
-                    <p>
-                      {new Date(order.createdAt).toLocaleDateString()} ·{" "}
-                      {new Date(order.createdAt).toLocaleTimeString()}
-                    </p>
+            <div className="studio-muted">{k.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="studio-card studio-toolbar">
+        <div className="studio-pills">
+          {["open", "all", ...STATUSES].map((key) => (
+            <button
+              key={key}
+              className={tab === key ? "active" : ""}
+              onClick={() => setTab(key)}
+            >
+              {key === "open" ? "Needs action" : key === "all" ? "All" : key}
+            </button>
+          ))}
+        </div>
+
+        <input
+          className="studio-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search order, name or email"
+        />
+      </div>
+
+      <div className="studio-stack">
+        {loading ? (
+          <p className="studio-muted">Loading orders…</p>
+        ) : rows.length === 0 ? (
+          <div className="studio-card studio-empty">
+            <h3>Nothing here</h3>
+            <p>No orders match that filter.</p>
+          </div>
+        ) : (
+          rows.map((o) => {
+            const expanded = openId === o.id;
+
+            return (
+              <div className="studio-card studio-request" key={o.id}>
+                <span className="studio-avatar">
+                  {(o.customer.firstName || "?").slice(0, 1)}
+                </span>
+
+                <div className="studio-request-body">
+                  <div className="studio-request-top">
+                    <strong>
+                      {o.customer.firstName} {o.customer.lastName}
+                    </strong>
+                    <span className="studio-ref">{o.orderNumber}</span>
+                    <span className="studio-eyebrow">
+                      {dLabel(String(o.createdAt).slice(0, 10))}
+                    </span>
                   </div>
 
-                  <div className="admin-order-actions">
-                    <select
-                      className="admin-status-select"
-                      value={order.status}
-                      disabled={updatingId === order.id}
-                      onChange={(event) =>
-                        updateOrderStatus(order.id, event.target.value)
-                      }
-                    >
-                      {STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-
-                    <button
-                      className="admin-notify-btn"
-                      onClick={() => notifyUser(order.id)}
-                      disabled={notifyingId === order.id}
-                    >
-                      {notifyingId === order.id ? "Sending..." : "Notify User"}
-                    </button>
+                  <div className="studio-muted">
+                    {o.items.length} item{o.items.length === 1 ? "" : "s"} ·{" "}
+                    {money(o.total)} · {o.customer.email}
                   </div>
-                </div>
 
-                <div className="admin-customer">
-                  <h4>Customer Details</h4>
+                  {expanded && (
+                    <div className="studio-drawer-move">
+                      <div className="studio-moves">
+                        {o.items.map((item, index) => (
+                          <div key={`${item.name}-${index}`}>
+                            <div>
+                              <span>{item.name}</span>
+                              <div className="studio-eyebrow">
+                                {item.qty} × {money(item.price)}
+                              </div>
+                            </div>
+                            <span className="mono">
+                              {money(item.qty * item.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
 
-                  <p>
-                    <strong>Name:</strong> {order.customer.firstName}{" "}
-                    {order.customer.lastName}
-                  </p>
+                      <p className="studio-muted" style={{ marginTop: 12 }}>
+                        {o.customer.address}, {o.customer.city}{" "}
+                        {o.customer.postcode}
+                        {o.customer.phone ? ` · ${o.customer.phone}` : ""}
+                      </p>
 
-                  <p>
-                    <strong>Email:</strong> {order.customer.email}
-                  </p>
-
-                  <p>
-                    <strong>Phone:</strong> {order.customer.phone || "N/A"}
-                  </p>
-
-                  <p>
-                    <strong>Address:</strong> {order.customer.address},{" "}
-                    {order.customer.city} {order.customer.postcode}
-                  </p>
-
-                  {order.customer.notes && (
-                    <p>
-                      <strong>Notes:</strong> {order.customer.notes}
-                    </p>
+                      {o.customer.notes && (
+                        <p className="studio-note">{o.customer.notes}</p>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                <div className="admin-items">
-                  <h4>Items</h4>
+                <div className="studio-request-actions">
+                  <select
+                    value={o.status}
+                    disabled={busyId === o.id}
+                    onChange={(e) => changeStatus(o.id, e.target.value)}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
 
-                  {order.items.map((item, index) => (
-                    <div className="admin-item-row" key={`${item.name}-${index}`}>
-                      <span>
-                        {item.qty} × {item.name}
-                      </span>
+                  <button
+                    className="studio-btn solid"
+                    disabled={busyId === o.id}
+                    onClick={() => notify(o)}
+                  >
+                    {busyId === o.id ? "Sending…" : "Email guest"}
+                  </button>
 
-                      <strong>${(item.qty * item.price).toFixed(2)}</strong>
-                    </div>
-                  ))}
+                  <button
+                    className="studio-btn ghost"
+                    onClick={() => setOpenId(expanded ? null : o.id)}
+                  >
+                    {expanded ? "Hide" : "Details"}
+                  </button>
                 </div>
+              </div>
+            );
+          })
+        )}
+      </div>
 
-                <div className="admin-order-total">
-                  <span>Total</span>
-                  <strong>${order.total.toFixed(2)}</strong>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      </section>
-    </main>
+      {notice && <p className="studio-muted">{notice}</p>}
+    </div>
   );
 }
 

@@ -2,33 +2,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { logoutAdmin } from "../../api/adminAuthApi";
 
 const pageInfo: Record<string, { title: string; subtitle: string }> = {
-  "/admin": {
-    title: "Dashboard",
-    subtitle: "Manage your beauty parlour website from one place.",
-  },
   "/admin/orders": {
-    title: "Orders",
-    subtitle: "View customer orders, update status, and manage purchases.",
+    title: "Shop orders",
+    subtitle: "View retail orders, update status, and email the guest.",
   },
   "/admin/products": {
-    title: "Products",
-    subtitle: "Add, edit, and remove shop products.",
-  },
-  "/admin/services": {
-    title: "Services",
-    subtitle: "Manage the beauty services shown on the website.",
-  },
-  "/admin/reviews": {
-    title: "Client Reviews",
-    subtitle: "Add, edit, and manage customer testimonials.",
-  },
-  "/admin/homepage": {
-    title: "Homepage Data",
-    subtitle: "Update homepage statistics and visible homepage values.",
-  },
-  "/admin/blogs": {
-    title: "Blogs",
-    subtitle: "Add, edit, and manage website blog posts.",
+    title: "Shop catalogue",
+    subtitle: "Add, edit, and hide the products sold on the website.",
   },
 };
 

@@ -4,10 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "node test-stripe-webhook.js",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "db:schema": "psql -U postgres -d beauty_parlour_db -f src/db/schema.sql",
-    "db:seed": "psql -U postgres -d beauty_parlour_db -f src/db/seed.sql"
+    "db:schema": "node scripts/run-psql.js src/db/schema.sql",
+    "db:seed": "node scripts/run-psql.js src/db/seed.sql",
+    "db:migrate": "node scripts/run-psql.js src/db/migrations.sql",
+    "db:salon": "node src/db/seed-salon.js",
+    "check:schedule": "node src/utils/schedule.selfcheck.js",
+    "db:products": "node src/db/build-products.js && node scripts/run-psql.js src/db/products.sql"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +24,8 @@
     "express-rate-limit": "^8.5.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "stripe": "^22.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

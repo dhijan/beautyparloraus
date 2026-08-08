@@ -5,52 +5,61 @@ interface AdminSidebarProps {
   closeSidebar: () => void;
 }
 
-const adminLinks = [
+// The studio side: bookings, chairs and stock.
+const studioLinks = [
   {
-    label: "Dashboard",
-    path: "/admin",
-    icon: "fa-solid fa-chart-line",
+    label: "Day view",
+    path: "/admin/diary",
+    icon: "fa-solid fa-calendar-day",
   },
   {
-    label: "Orders",
+    label: "Requests",
+    path: "/admin/requests",
+    icon: "fa-solid fa-inbox",
+  },
+  {
+    label: "Clients",
+    path: "/admin/clients",
+    icon: "fa-solid fa-user",
+  },
+  {
+    label: "Roster",
+    path: "/admin/roster",
+    icon: "fa-solid fa-user-clock",
+  },
+  {
+    label: "Treatments",
+    path: "/admin/treatments",
+    icon: "fa-solid fa-list",
+  },
+  {
+    label: "Inventory",
+    path: "/admin/inventory",
+    icon: "fa-solid fa-boxes-stacked",
+  },
+  {
+    label: "Closures",
+    path: "/admin/closures",
+    icon: "fa-solid fa-ban",
+  },
+  {
+    label: "Reports",
+    path: "/admin/reports",
+    icon: "fa-solid fa-chart-pie",
+  },
+];
+
+// The shop side, which the studio console does not cover.
+const adminLinks = [
+  {
+    label: "Shop orders",
     path: "/admin/orders",
     icon: "fa-solid fa-box",
   },
   {
-    label: "Products",
+    label: "Shop catalogue",
     path: "/admin/products",
     icon: "fa-solid fa-bag-shopping",
-  },
-  {
-    label: "Services",
-    path: "/admin/services",
-    icon: "fa-solid fa-spa",
-  },
-  {
-    label: "Client Reviews",
-    path: "/admin/reviews",
-    icon: "fa-solid fa-star",
-  },
-  {
-    label: "Homepage Data",
-    path: "/admin/homepage",
-    icon: "fa-solid fa-house",
-  },
-  {
-    label: "Blogs",
-    path: "/admin/blogs",
-    icon: "fa-solid fa-blog",
-  },
-];
-
-const futureLinks = [
-  {
-    label: "Homepage Content",
-    icon: "fa-solid fa-photo-film",
-  },
-  {
-    label: "Settings",
-    icon: "fa-solid fa-gear",
   },
 ];
 
@@ -63,11 +72,12 @@ function AdminSidebar({ sidebarOpen, closeSidebar }: AdminSidebarProps) {
       </div>
 
       <nav className="admin-sidebar-nav">
-        {adminLinks.map((link) => (
+        <div className="admin-sidebar-label">Studio</div>
+
+        {studioLinks.map((link) => (
           <NavLink
             key={link.path}
             to={link.path}
-            end={link.path === "/admin"}
             onClick={closeSidebar}
             className={({ isActive }) =>
               isActive ? "admin-side-link active" : "admin-side-link"
@@ -78,14 +88,22 @@ function AdminSidebar({ sidebarOpen, closeSidebar }: AdminSidebarProps) {
           </NavLink>
         ))}
 
-        <div className="admin-sidebar-label">Coming Soon</div>
+        <div className="admin-sidebar-label">Shop</div>
 
-        {futureLinks.map((link) => (
-          <div className="admin-side-link disabled" key={link.label}>
+        {adminLinks.map((link) => (
+          <NavLink
+            key={link.path}
+            to={link.path}
+            onClick={closeSidebar}
+            className={({ isActive }) =>
+              isActive ? "admin-side-link active" : "admin-side-link"
+            }
+          >
             <i className={link.icon}></i>
             <span>{link.label}</span>
-          </div>
+          </NavLink>
         ))}
+
       </nav>
 
       <div className="admin-sidebar-bottom">

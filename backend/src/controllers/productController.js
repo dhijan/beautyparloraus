@@ -9,6 +9,7 @@ function formatProduct(row) {
     tag: row.tag,
     desc: row.desc,
     imageUrl: row.imageUrl,
+    paymentLink: row.paymentLink,
     isActive: row.is_active,
   };
 }
@@ -26,6 +27,7 @@ async function getProducts(req, res, next) {
         tag,
         description AS desc,
         image_url AS "imageUrl",
+        payment_link AS "paymentLink",
         is_active
       FROM products
       WHERE is_active = TRUE
@@ -67,6 +69,7 @@ async function getProductById(req, res, next) {
         tag,
         description AS desc,
         image_url AS "imageUrl",
+        payment_link AS "paymentLink",
         is_active
       FROM products
       WHERE id = $1 AND is_active = TRUE
@@ -96,6 +99,7 @@ async function getAdminProducts(req, res, next) {
         tag,
         description AS desc,
         image_url AS "imageUrl",
+        payment_link AS "paymentLink",
         is_active
       FROM products
       ORDER BY id DESC
@@ -110,7 +114,7 @@ async function getAdminProducts(req, res, next) {
 
 async function createProduct(req, res, next) {
   try {
-    const { name, cat, price, tag, desc, imageUrl } = req.body;
+    const { name, cat, price, tag, desc, imageUrl, paymentLink } = req.body;
 
     if (!name || !cat || !desc) {
       return res.status(400).json({
@@ -126,9 +130,10 @@ async function createProduct(req, res, next) {
         price,
         tag,
         description,
-        image_url
+        image_url,
+        payment_link
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING 
         id,
         name,
@@ -137,6 +142,7 @@ async function createProduct(req, res, next) {
         tag,
         description AS desc,
         image_url AS "imageUrl",
+        payment_link AS "paymentLink",
         is_active
       `,
       [
@@ -148,6 +154,7 @@ async function createProduct(req, res, next) {
         tag || null,
         desc,
         imageUrl || null,
+        paymentLink || null,
       ]
     );
 
@@ -160,7 +167,8 @@ async function createProduct(req, res, next) {
 async function updateProduct(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, cat, price, tag, desc, imageUrl, isActive } = req.body;
+    const { name, cat, price, tag, desc, imageUrl, paymentLink, isActive } =
+      req.body;
 
     const result = await pool.query(
       `
@@ -172,8 +180,9 @@ async function updateProduct(req, res, next) {
         tag = $4,
         description = $5,
         image_url = $6,
-        is_active = $7
-      WHERE id = $8
+        payment_link = $7,
+        is_active = $8
+      WHERE id = $9
       RETURNING 
         id,
         name,
@@ -182,6 +191,7 @@ async function updateProduct(req, res, next) {
         tag,
         description AS desc,
         image_url AS "imageUrl",
+        payment_link AS "paymentLink",
         is_active
       `,
       [
@@ -193,6 +203,7 @@ async function updateProduct(req, res, next) {
         tag || null,
         desc,
         imageUrl || null,
+        paymentLink || null,
         isActive,
         id,
       ]

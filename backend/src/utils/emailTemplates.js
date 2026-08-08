@@ -112,34 +112,7 @@ function orderStatusTemplate(order) {
   };
 }
 
-function contactMessageTemplate(messageData) {
-  const message = `
-    A new contact message has been submitted from the Brow Beauty Hub website.
-  `;
-
-  const content = `
-    <div style="background:#fff0f5; padding:18px; border-radius:14px; margin-top:18px;">
-      <p><strong>Name:</strong> ${messageData.fullName}</p>
-      <p><strong>Email:</strong> ${messageData.email}</p>
-      <p><strong>Subject:</strong> ${messageData.subject}</p>
-      <p><strong>Message:</strong></p>
-      <p style="line-height:1.7;">${messageData.message}</p>
-    </div>
-  `;
-
-  return {
-    subject: `New Contact Message - ${messageData.subject}`,
-    html: baseEmailTemplate({
-      title: "New Contact Message",
-      message,
-      content,
-    }),
-  };
-}
-
 module.exports = {
   orderReceivedTemplate,
   orderStatusTemplate,
-  contactMessageTemplate,
-
 };

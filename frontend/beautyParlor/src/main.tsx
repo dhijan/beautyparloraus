@@ -9,6 +9,9 @@ import "./index.css";
 import "./styles/style.css";
 import "./styles/shop.css";
 import "./styles/admin.css";
+import "./styles/studio.css";
+import "./styles/bbh.css";
+import "./styles/booking.css";
 
 import App from "./App";
 

@@ -3,25 +3,22 @@ import logo from "../assets/images/logo.png";
 
 function Footer() {
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <Link className="footer-logo" to="/">
-              <img
-                alt="Brow Beauty Hub"
-                className="footer-logo-img"
-                src={logo}
-              />
+    <footer className="bbh-footer">
+      <div className="bbh-section">
+        <div className="bbh-footer-grid">
+          <div>
+            <Link to="/">
+              <img src={logo} alt="Brow Beauty Hub" />
             </Link>
 
             <p>
-              Precision brow, lash, and skin treatments across four Sydney
-              locations — Roselands, Hurstville Level 2 & 3, and Hornsby —
-              consistently beautiful results, every visit.
+              Expert brow &amp; lash treatments, advanced skin care and premium
+              beauty services across Sydney.
+              <br />
+              Mon–Sat 9am–7pm · Sun 10am–5pm
             </p>
 
-            <div className="social-links">
+            <div className="bbh-socials">
               <a
                 aria-label="Instagram"
                 href="https://www.instagram.com/eyebrowbeautyhub/"
@@ -51,88 +48,38 @@ function Footer() {
             </div>
           </div>
 
-          <div className="footer-links">
-            <h4>Quick Links</h4>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/about">About Us</Link>
-              </li>
-              <li>
-                <Link to="/services">Services</Link>
-              </li>
-              <li>
-                <Link to="/locations">Locations</Link>
-              </li>
-              <li>
-                <Link to="/shop">Shop</Link>
-              </li>
-              <li>
-                <Link to="/blogs">Blogs</Link>
-              </li>
-              <li>
-                <Link to="/contact">Contact</Link>
-              </li>
-              <li>
-                <Link to="/contact#booking">Book Now</Link>
-              </li>
-            </ul>
+          <div className="bbh-footer-col">
+            <span className="bbh-eyebrow">Services</span>
+            <Link to="/services">Threading</Link>
+            <Link to="/services">Eyelash extensions</Link>
+            <Link to="/services">Facials</Link>
+            <Link to="/services">Waxing</Link>
           </div>
 
-          <div className="footer-links">
-            <h4>Services</h4>
-            <ul>
-              <li>
-                <Link to="/services">Eyebrow Services</Link>
-              </li>
-              <li>
-                <Link to="/services">Eyelash Treatments</Link>
-              </li>
-              <li>
-                <Link to="/services">Facials & Skin</Link>
-              </li>
-              <li>
-                <Link to="/services">Waxing Services</Link>
-              </li>
-              <li>
-                <Link to="/shop">Shop Products</Link>
-              </li>
-            </ul>
+          <div className="bbh-footer-col">
+            <span className="bbh-eyebrow">Studio</span>
+            <Link to="/about">About us</Link>
+            <Link to="/lookbook">Lookbook</Link>
+            <Link to="/locations">Locations</Link>
+            <Link to="/shop">Shop</Link>
           </div>
 
-          <div className="footer-contact">
-            <h4>Contact</h4>
-            <p>
-              <i className="fa-solid fa-location-dot"></i> Roselands ·
-              Hurstville · Hornsby
-            </p>
-            <p>
-              <i className="fa-solid fa-phone"></i> Roselands: 0426 962 461
-            </p>
-            <p>
-              <i className="fa-solid fa-phone"></i> Hurstville: 0414 205 503
-            </p>
-            <p>
-              <i className="fa-solid fa-phone"></i> Hornsby: 02 8417 0814
-            </p>
-            <p>
-              <i className="fa-solid fa-envelope"></i>{" "}
+          <div className="bbh-footer-col">
+            <span className="bbh-eyebrow">Contact</span>
+            <a href="tel:0426962461">0426 962 461 — Roselands</a>
+            <a href="tel:0414205503">0414 205 503 — Hurstville</a>
+            <a href="tel:0284170814">02 8417 0814 — Hornsby</a>
+            <a href="mailto:eyebrowbeautyhub@gmail.com">
               eyebrowbeautyhub@gmail.com
-            </p>
-            <p>
-              <i className="fa-regular fa-clock"></i> Mon–Sat: 9am–7pm
-            </p>
+            </a>
+            <Link to="/book">Book an appointment</Link>
+            <Link to="/manage">Manage a booking</Link>
           </div>
         </div>
 
-        <div className="footer-bottom">
-          <p>© 2026 Brow Beauty Hub. All rights reserved.</p>
-          <p>
-            Designed with <i className="fa-solid fa-heart"></i> for beauty
-            lovers.
-          </p>
+        <div className="bbh-footer-bottom">
+          <span>© 2026 Brow Beauty Hub</span>
+          <span>Precision brows. Flawless results.</span>
         </div>
       </div>
     </footer>

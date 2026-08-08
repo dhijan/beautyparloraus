@@ -8,11 +8,3 @@ export interface HomepageStat {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface HomepageStatForm {
-  value: string;
-  suffix: string;
-  label: string;
-  displayOrder: string;
-  isActive: boolean;
-}

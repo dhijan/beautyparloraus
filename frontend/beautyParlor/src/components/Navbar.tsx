@@ -1,130 +1,79 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/images/logo.png";
+import { BIZ } from "../data/salonData";
+
+const LINKS = [
+  { to: "/services", label: "Services" },
+  { to: "/about", label: "About" },
+  { to: "/lookbook", label: "Lookbook" },
+  { to: "/shop", label: "Shop" },
+  { to: "/locations", label: "Locations" },
+];
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const close = () => setMenuOpen(false);
 
-  const closeMenu = () => {
-    setMenuOpen(false);
-    document.body.style.overflow = "";
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
+  // Never leave the body scroll-locked, even if the drawer unmounts open.
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   return (
-    <nav className={`navbar ${scrolled ? "scrolled" : ""}`} id="navbar">
-      <div className="nav-container">
-        <Link to="/" className="nav-logo" onClick={closeMenu}>
-          <img src={logo} alt="Brow Beauty Hub" className="nav-logo-img" />
-        </Link>
+    <header className="bbh-header" data-header>
+      <nav className={`bbh-nav ${menuOpen ? "open" : ""}`}>
+        <div className="bbh-nav-top">
+          <Link to="/" className="bbh-brand" onClick={close}>
+            <img src={logo} alt="Brow Beauty Hub" />
+            <span>Brow Beauty Hub</span>
+          </Link>
 
-        <ul className={`nav-links ${menuOpen ? "open" : ""}`} id="nav-links">
-          <li>
-            <NavLink
-              to="/"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              Home
-            </NavLink>
-          </li>
+          <button
+            className={`bbh-burger ${menuOpen ? "open" : ""}`}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
 
-          <li>
-            <NavLink
-              to="/about"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              About Us
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/services"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              Services
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/locations"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              Locations
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/shop"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              Shop
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/blogs"
-              onClick={closeMenu}
-              className={({ isActive }) => (isActive ? "active-nav" : "")}
-            >
-              Blogs
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/contact"
-              onClick={closeMenu}
-              className={({ isActive }) =>
-                `nav-contact-link ${isActive ? "active-nav" : ""}`
-              }
-            >
-              Contact
-            </NavLink>
-          </li>
-
-          <li>
-            <Link to="/contact#booking" className="nav-cta" onClick={closeMenu}>
-              Book Now
-            </Link>
-          </li>
+        <ul className="bbh-nav-links">
+          {LINKS.map((link) => (
+            <li key={link.to}>
+              <NavLink
+                to={link.to}
+                onClick={close}
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                {link.label}
+              </NavLink>
+            </li>
+          ))}
         </ul>
 
-        <button
-          aria-label="Toggle menu"
-          className={`hamburger ${menuOpen ? "open" : ""}`}
-          id="hamburger"
-          onClick={() => setMenuOpen((prev) => !prev)}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-    </nav>
+        <Link className="bbh-btn sm" to="/book" onClick={close}>
+          Book now
+          <span className="dot"></span>
+        </Link>
+
+        {/* Secondary entry point — only surfaced in the mobile sheet, as the
+            desktop bar has no room for it. */}
+        <div className="bbh-nav-secondary">
+          <Link to="/manage" onClick={close}>
+            Manage booking
+          </Link>
+
+          <a href={BIZ.tel}>{BIZ.phone}</a>
+        </div>
+      </nav>
+    </header>
   );
 }
 

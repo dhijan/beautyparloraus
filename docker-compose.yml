@@ -3,13 +3,14 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-beauty_parlour_db}
-      POSTGRES_USER: ${DB_USER:-beauty_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_this_database_password}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - beauty_postgres_data:/var/lib/postgresql/data
       - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./backend/src/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ./backend/src/db/products.sql:/docker-entrypoint-initdb.d/03-products.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -41,6 +42,8 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-Brow Beauty Hub <onboarding@resend.dev>}
       EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
       CONTACT_RECEIVER_EMAIL: ${CONTACT_RECEIVER_EMAIL:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
     depends_on:
       db:
         condition: service_healthy
